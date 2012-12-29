@@ -8,26 +8,26 @@ This service provider has ben built to work with the `DoctrineServiceProvider` s
 
 ## Configuration
 
-Add the the repository to your dependencies, then register the autoload:
-
-    $app['autoloader']->registerNamespaces(array(
-        /** Your other namespaces **/
-        'Knp' => __DIR__.'/../vendor/KnpSilexExtensions/'
-    ));
-
 Register the service provider:
 
     $app->register(
         new Knp\Provider\RepositoryServiceProvider(), array(
             'repository.repositories' => array(
-                'projects' => 'MyProject\Repository\Project',
+                'database1' => array(
+                    'projects' => 'MyProject\Repository\Project',
+                ),
+                'database2' => array(
+                    'users' => 'MyProject\Repository\User',
+                ),
             )
         )
     );
 
-The service provider expects parameter `repository.repositories` to be set and to be an associative array with service names as keys and repository classes as values.
+The service provider expects parameter `repository.repositories` to be set and to be an array where keys are connection names (of multiple databases, managed by `dbs.options`) 
+and each connection name is an associative array with service names as keys and repository classes as values.
 
-In the example above, the `projects` service will be exposed by Pimple (ie, you can access it through `$app['projects']`) using the `MyProject\Repository\Project` class.
+In the example above, the `database1_projects` service will be exposed by Pimple (ie, you can access it through `$app['database1_projects']`) using the `MyProject\Repository\Project` class, and it refers to `database1` connection.
+In the same way, the `database2_users` service will be exposed using the `MyProject\Repository\User` class, and it refers to to `database2` connection.
 
 ## Usage
 
@@ -53,7 +53,7 @@ The default repository implementation exposes a number of methods to manipulate 
 
 ### `insert(array $data)`
 
-    $app['projects']->insert(array(
+    $app['database1_projects']->insert(array(
         'title'       => 'foo',
         'description' => 'A project'
     ));
@@ -62,25 +62,25 @@ Will insert a project in the table with `title` "foo" and `description` "A proje
 
 ### `update(array $data, array $identifier)`
 
-    $app['projects']->update(array('title' => 'bar'), array('title' => 'foo'));
+    $app['database1_projects']->update(array('title' => 'bar'), array('title' => 'foo'));
 
 Will update all projects' `title` from "foo" to "bar".
 
 ### `delete(array $identifier)`
 
-    $app['projects']->delete(array('title' => 'bar'));
+    $app['database1_projects']->delete(array('title' => 'bar'));
 
 Will update all projects which title is "bar".
 
 ### `find($id)`
 
-    $app['projects']->find(42);
+    $app['database1_projects']->find(42);
 
 Returns the project which primary key is 42.
 
 ### `findAll()`
 
-    $app['projects']->findAll();
+    $app['database1_projects']->findAll();
 
 Returns the entire table content.
 

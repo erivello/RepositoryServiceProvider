@@ -13,10 +13,12 @@ class RepositoryServiceProvider implements ServiceProviderInterface
 
     public function boot(Application $app)
     {
-        foreach ($app['repository.repositories'] as $label => $class) {
-            $app[$label] = $app->share(function($app) use ($class) {
-                return new $class($app['db']); 
-            });
+        foreach ($app['repository.repositories'] as $db => $repositories) {
+            foreach ($repositories as $label => $class) {
+                $app[$db . '_' . $label] = $app->share(function($app) use ($class, $db) {
+                   return new $class($app['dbs'][$db]);
+                });
+            }
         }
     }
 }
